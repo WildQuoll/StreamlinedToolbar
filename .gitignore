@@ -1,0 +1,8 @@
+﻿bin/
+obj/
+Properties/AssemblyInfo.cs
+.vs/
+StreamlinedToolbar.csproj
+StreamlinedToolbar.sln
+packages/
+packages.config
