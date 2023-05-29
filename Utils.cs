@@ -453,8 +453,12 @@ namespace StreamlinedToolbar
             {
                 foreach (var sub in info.m_subBuildings)
                 {
-                    // Note: They might overlap, which we don't check, but should be good enough.
-                    area += sub.m_buildingInfo.m_cellLength * sub.m_buildingInfo.m_cellWidth;
+                    var subBuildingInfo = sub.m_buildingInfo;
+                    if (subBuildingInfo)
+                    {
+                        // Note: The sub-buildings might overlap, which we don't check, but this should be good enough.
+                        area += subBuildingInfo.m_cellLength * subBuildingInfo.m_cellWidth;
+                    }
                 }
             }
 
