@@ -2,17 +2,31 @@
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
 using HarmonyLib;
-using System;
 using System.Collections.Generic;
+using UnityEngine;
+using static GeneratedGroupPanel;
 
 namespace StreamlinedToolbar
 {
-    // This patch assigns icons and tooltips to our custom tabs.
-    [HarmonyPatch(typeof(GeneratedGroupPanel), "SpawnButtonEntry",
-        new Type[] { typeof(UITabstrip), typeof(string), typeof(string), typeof(bool),
-                     typeof(string), typeof(string), typeof(string), typeof(bool), typeof(bool) })]
-    class SpawnButtonEntryPatch
+    [HarmonyPatch(typeof(GeneratedGroupPanel), "CreateGroupItem")]
+    class CreateGroupItemPatch
     {
+        // This prefix skips creation of certain emptied tabs.
+        // Normally, these tabs are created regardless of whether any items belong to them.
+        [HarmonyPrefix]
+        static bool Prefix(GroupInfo info, string localeID)
+        {
+            if (Mod.IsInGame())
+            {
+                if (info.name == "MonumentModderPack" || info.name == "LandscapingModderPackTrees")
+                {
+                    return false; // skip creation of these tab
+                }
+            }
+
+            return true;
+        }
+
         private static Dictionary<string, Dictionary<string, string>> translations = new Dictionary<string, Dictionary<string, string>>
         {
             {
@@ -99,29 +113,57 @@ namespace StreamlinedToolbar
             SetTooltip(category, fallbackLocaleID, ref button);
         }
 
+        //
+        // This postfix assigns an icon and a name (tooltip) to our custom tabs.
+        //
+        // This patch would more naturally fit in as a postfix of GeneratedGroupPanel.SpawnButtonEntry, which is where button icons
+        // and tooltip are assigned.
+        //
+        // However:
+        // In the implementation of SpawnButtonEntry, there is a call to Type.GetType made with unqualified type names (e.g. Type.GetType("EducationPanel").
+        // That call will only work within the same assembly. Patching a method with Harmony generates the patched method in a new assembly,
+        // in which the call will fail. This manifests itself in some toolbar tabs not being populated with any items in certain circumstances.
+        // In the output_log, it will show up as: "Assembly resolution failure. No assembly named '...Panel' was found."
+        // Note that this will happen even if the mod which contains the patch is disabled.
+        //
+        // In conclusion, SpawnButtonEntry should never be patched, unless by Prefix that always skips the original implementation.
+        //
         [HarmonyPostfix]
-        static void Postfix(UITabstrip strip, string name, string category,
-                            bool isDefaultCategory, string localeID, string unlockText,
-                            string spriteBase, bool enabled, bool forceFillContainer,
-                            ref UIButton __result)
+        static void Postfix(GroupInfo info, string localeID, GeneratedGroupPanel __instance, UITabstrip ___m_Strip, int ___m_ObjectIndex)
         {
-            switch (category)
+            int buttonIndex = ___m_ObjectIndex - 1;
+
+            if (___m_Strip.tabCount <= buttonIndex)
+            {
+                // Probably should never end up here
+                return;
+            }
+
+            var button = ___m_Strip.tabs[buttonIndex] as UIButton;
+
+            if (button == null)
+            {
+                // Probably should never end up here
+                return;
+            }
+
+            switch (info.name) 
             {
                 // Custom tabs
                 case "BeautificationWaterStructures":
-                    SetIconAndTooltip(spriteBase, "LandscapingWaterStructures", localeID, ref __result);
+                    SetIconAndTooltip("SubBar", "LandscapingWaterStructures", localeID, ref button);
                     break;
                 case "MonumentsCommercial":
-                    SetIconAndTooltip(spriteBase, "DistrictSpecializationCommercial", "DISTRICT_CATEGORY", ref __result);
+                    SetIconAndTooltip("SubBar", "DistrictSpecializationCommercial", "DISTRICT_CATEGORY", ref button);
                     break;
                 case "MonumentsOffice":
-                    SetIconAndTooltip(spriteBase, "DistrictSpecializationOffice", "DISTRICT_CATEGORY", ref __result);
+                    SetIconAndTooltip("SubBar", "DistrictSpecializationOffice", "DISTRICT_CATEGORY", ref button);
                     break;
 
                 // Renamed vanilla tabs
                 case "BeautificationOthers":
                 case "MonumentFootball":
-                    SetTooltip(category, localeID, ref __result);
+                    SetTooltip(info.name, localeID, ref button);
                     break;
                 default:
                     return;

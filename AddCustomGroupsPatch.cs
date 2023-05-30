@@ -6,8 +6,10 @@ using static GeneratedGroupPanel;
 
 namespace StreamlinedToolbar
 {
-    // These patches skip creation of empty toolbar tabs.
+    // This patch skips creation of empty toolbar tabs.
     // (Only needed for those tabs which are created "forcefully". In most cases tabs are created based on there being at least 1 item in a given category.)
+    //
+    // See also: CreateGroupItemPatch prefix, which skips some other tabs.
 
     [HarmonyPatch(typeof(BeautificationGroupPanel), "AddCustomGroups")]
     class AddCustomGroupsPatch
@@ -31,24 +33,6 @@ namespace StreamlinedToolbar
             }
 
             return false; // skip default implementation
-        }
-    }
-
-    [HarmonyPatch(typeof(GeneratedGroupPanel), "CreateGroupItem")]
-    class CreateGroupItemPatch
-    {
-        [HarmonyPrefix]
-        static bool Prefix(GroupInfo info, string localeID)
-        {
-            if (Mod.IsInGame())
-            {
-                if (info.name == "MonumentModderPack" || info.name == "LandscapingModderPackTrees")
-                {
-                    return false; // skip creation of these tab
-                }
-            }
-
-            return true;
         }
     }
 }
