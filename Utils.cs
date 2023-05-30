@@ -449,7 +449,7 @@ namespace StreamlinedToolbar
         {
             int area = info.m_cellLength * info.m_cellWidth;
 
-            if (includeSubbuildings)
+            if (includeSubbuildings && (info.m_subBuildings != null))
             {
                 foreach (var sub in info.m_subBuildings)
                 {
@@ -467,7 +467,7 @@ namespace StreamlinedToolbar
 
         public static bool LooksLikeCarPark(BuildingInfo info)
         {
-            if (!(info.m_buildingAI is ParkAI))
+            if (!(info.m_buildingAI is ParkAI) || info.m_props == null)
             {
                 return false;
             }
@@ -481,7 +481,7 @@ namespace StreamlinedToolbar
                     continue;
                 }
 
-                if (prop.m_prop == null)
+                if (prop.m_prop == null || prop.m_prop.m_parkingSpaces == null)
                 {
                     // Tree "props" have null m_props.
                     continue;
@@ -520,7 +520,7 @@ namespace StreamlinedToolbar
             VehicleInfo.VehicleType vehicleTypes = 0;
 
             var stationAI = buildingInfo.m_buildingAI as TransportStationAI;
-            if (stationAI)
+            if (stationAI && stationAI.m_info != null && stationAI.m_info.m_paths != null)
             {
                 foreach (var path in stationAI.m_info.m_paths)
                 {
@@ -536,9 +536,12 @@ namespace StreamlinedToolbar
             VehicleInfo.VehicleType vehicleTypes = GetVehicleTypesUsingStation(buildingInfo);
 
             // Some stations are composed of sub-buildings
-            foreach (var subBuilding in buildingInfo.m_subBuildings)
+            if (buildingInfo.m_subBuildings != null)
             {
-                vehicleTypes |= GetVehicleTypesUsingStation(subBuilding.m_buildingInfo);
+                foreach (var subBuilding in buildingInfo.m_subBuildings)
+                {
+                    vehicleTypes |= GetVehicleTypesUsingStation(subBuilding.m_buildingInfo);
+                }
             }
 
             bool hasTrain = (vehicleTypes & VehicleInfo.VehicleType.Train) != 0;
