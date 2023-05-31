@@ -467,7 +467,7 @@ namespace StreamlinedToolbar
 
         public static bool LooksLikeCarPark(BuildingInfo info)
         {
-            if (!(info.m_buildingAI is ParkAI) || info.m_props == null)
+            if (!(info.m_buildingAI is ParkAI || info.m_buildingAI is ParkBuildingAI) || info.m_props == null)
             {
                 return false;
             }
