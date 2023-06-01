@@ -26,9 +26,8 @@ namespace StreamlinedToolbar
                 return;
             }
 
-            if (__instance is RoadsPanel && info.GetService() == ItemClass.Service.Beautification)
+            if (__instance is RoadsPanel && info.GetService() == ItemClass.Service.Beautification &&  Utils.LooksLikeCarPark(info))
             {
-                // Some of these are car parks
                 __result = true;
             }
         }
