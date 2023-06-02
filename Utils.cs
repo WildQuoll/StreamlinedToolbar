@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using System.Collections.Generic;
 
 namespace StreamlinedToolbar
 {
@@ -12,6 +13,8 @@ namespace StreamlinedToolbar
 
     internal class Utils
     {
+        private static Dictionary<string, string> BuildingCategoryOverrideCache = new Dictionary<string, string>();
+
         public static string GetTreeCategoryOverride(TreeInfo info)
         {
             return "LandscapingTrees";
@@ -48,21 +51,20 @@ namespace StreamlinedToolbar
             if (info.category == "BeautificationProps")
             {
                 // Parks & Plazas -> Props contains some rocks, move those to Landscaping -> Rocks.
-                var uiCategory = Traverse.Create(info).Field("m_UIEditorCategory").GetValue() as string;
-                if (uiCategory == "PropsRocks")
+                if (info.editorCategory == "PropsRocks")
                 {
                     return "LandscapingRocks";
                 }
             }
 
             // All props normally shown in the different Beautification tabs to the "Props" tab
-            if (info.category == "BeautificationModderPack" ||
-                info.category == "BeautificationExpansion1" ||
-                info.category == "BeautificationPedestrianZonePlazas" ||
-                info.category == "BeautificationCityPark" ||
-                info.category == "BeautificationAmusementPark" ||
-                info.category == "BeautificationNatureReserve" ||
-                info.category == "BeautificationZoo")
+            else if (info.category == "BeautificationModderPack" ||
+                     info.category == "BeautificationExpansion1" ||
+                     info.category == "BeautificationPedestrianZonePlazas" ||
+                     info.category == "BeautificationCityPark" ||
+                     info.category == "BeautificationAmusementPark" ||
+                     info.category == "BeautificationNatureReserve" ||
+                     info.category == "BeautificationZoo")
             {
                 return "BeautificationProps";
             }
@@ -73,6 +75,21 @@ namespace StreamlinedToolbar
         // Returns null if no override is requested (which usually means info.category is used).
         public static string GetBuildingCategoryOverride(BuildingInfo info)
         {
+            if (BuildingCategoryOverrideCache.ContainsKey(info.name))
+            {
+                return BuildingCategoryOverrideCache[info.name];
+            }
+            else
+            {
+                string cat = GetBuildingCategoryOverrideInternal(info);
+                BuildingCategoryOverrideCache.Add(info.name, cat);
+                return cat;
+            }
+        }
+
+        private static string GetBuildingCategoryOverrideInternal(BuildingInfo info)
+        {
+
             if (info.GetService() == ItemClass.Service.Beautification && LooksLikeCarPark(info))
             {
                 return "RoadsMaintenance";
