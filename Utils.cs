@@ -13,6 +13,7 @@ namespace StreamlinedToolbar
 
     internal class Utils
     {
+        private static Dictionary<string, bool> LooksLikeCarParkCache = new Dictionary<string, bool>();
         private static Dictionary<string, string> BuildingCategoryOverrideCache = new Dictionary<string, string>();
 
         public static string GetTreeCategoryOverride(TreeInfo info)
@@ -483,6 +484,20 @@ namespace StreamlinedToolbar
         }
 
         public static bool LooksLikeCarPark(BuildingInfo info)
+        {
+            if (LooksLikeCarParkCache.ContainsKey(info.name))
+            {
+                return LooksLikeCarParkCache[info.name];
+            }
+            else
+            {
+                bool result = LooksLikeCarParkInternal(info);
+                LooksLikeCarParkCache.Add(info.name, result);
+                return result;
+            }
+        }
+
+        private static bool LooksLikeCarParkInternal(BuildingInfo info)
         {
             if (!(info.m_buildingAI is ParkAI || info.m_buildingAI is ParkBuildingAI) || info.m_props == null)
             {
