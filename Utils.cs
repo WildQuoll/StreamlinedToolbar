@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace StreamlinedToolbar
 {
@@ -36,6 +37,10 @@ namespace StreamlinedToolbar
                 if (info.m_netAI is QuayAI)
                 {
                     return "LandscapingWaterStructures";
+                }
+                else if (info.m_netAI is DecorationWallAI)
+                {
+                    return "LandscapingFences";
                 }
                 else
                 {
