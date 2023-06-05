@@ -20,15 +20,21 @@ namespace StreamlinedToolbar
         [HarmonyPrefix]
         static bool Prefix(PoolList<GroupInfo> groupItems, BeautificationGroupPanel __instance)
         {
-            // Same as default implementation, except we skip P&P Plazas (we empty that tab) and Hotels (it seems to be created OK from props).
+            // Same as default implementation, except we skip P&P Plazas (we always empty that tab).
 
-            // These two need to be created explicitly, but not sure why:
+            // Not sure why these tabs aren't created automatically, like other tabs, if an asset with the corresponding category is found.
+            // Perhaps it's because the item's "service" and/or other properties do not match those normally expected of items placed in "BeautificationPanels".
+
             if (!ToolsModifierControl.toolController.m_mode.IsFlagSet(ItemClass.Availability.AssetEditor))
             {
                 groupItems.Add((GroupInfo)createGroupMethod.Invoke(__instance, new[] { "BeautificationProps", null }));
                 if (SteamHelper.IsDLCOwned(SteamHelper.DLC.PlazasAndPromenadesDLC))
                 {
                     groupItems.Add((GroupInfo)createGroupMethod.Invoke(__instance, new[] { "BeautificationPedestrianZoneEssentials", null }));
+                }
+                if (SteamHelper.IsDLCOwned(SteamHelper.DLC.HotelDLC))
+                {
+                    groupItems.Add((GroupInfo)createGroupMethod.Invoke(__instance, new[] { "BeautificationHotels", null }));
                 }
             }
 
