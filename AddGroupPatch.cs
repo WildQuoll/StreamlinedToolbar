@@ -14,8 +14,8 @@ namespace StreamlinedToolbar
     {
         // Need access to these protected methods
         private static MethodInfo isCategoryRelevantMethod = AccessTools.Method(typeof(GeneratedGroupPanel), "IsCategoryRelevant");
-        private static MethodInfo createGroupMethod = AccessTools.Method(typeof(GeneratedGroupPanel), "CreateGroupInfo", new Type[] { typeof(string), typeof(PrefabInfo) });
-        private static MethodInfo updateGroupMethod = AccessTools.Method(typeof(GeneratedGroupPanel), "UpdateGroupInfo", new Type[] { typeof(GroupInfo), typeof(PrefabInfo) });
+        private static MethodInfo createGroupInfoMethod = AccessTools.Method(typeof(GeneratedGroupPanel), "CreateGroupInfo", new Type[] { typeof(string), typeof(PrefabInfo) });
+        private static MethodInfo updateGroupInfoMethod = AccessTools.Method(typeof(GeneratedGroupPanel), "UpdateGroupInfo", new Type[] { typeof(GroupInfo), typeof(PrefabInfo) });
 
         [HarmonyPrefix]
         public static bool Prefix(ref PoolList<GroupInfo> groupItems, PrefabInfo info, GeneratedGroupPanel __instance)
@@ -50,13 +50,13 @@ namespace StreamlinedToolbar
             {
                 //  Equivalent call:
                 // groupItems.Add(__instance.CreateGroupInfo(category, info));
-                groupItems.Add((GroupInfo)createGroupMethod.Invoke(__instance, new object[] { category, info }));
+                groupItems.Add((GroupInfo)createGroupInfoMethod.Invoke(__instance, new object[] { category, info }));
             }
             else
             {
                 //  Equivalent call:
                 // __instance.UpdateGroupInfo(groupInfo, info);
-                updateGroupMethod.Invoke(__instance, new object[] { groupInfo, info });
+                updateGroupInfoMethod.Invoke(__instance, new object[] { groupInfo, info });
             }
 
             return false; // skip default implementation

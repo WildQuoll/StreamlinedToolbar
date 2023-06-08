@@ -26,7 +26,7 @@ namespace StreamlinedToolbar
                 return;
             }
 
-            if (__instance is RoadsPanel && info.GetService() == ItemClass.Service.Beautification &&  Utils.LooksLikeCarPark(info))
+            if (__instance is RoadsPanel && Utils.GetCategoryOverride(info) == "RoadsMaintenance")
             {
                 __result = true;
             }
@@ -72,6 +72,31 @@ namespace StreamlinedToolbar
                 {
                     // Normally, the game places these props in the CCP tab. Move them to the Props tab.
                     // The filtering that restricts them to the 'Props' tab occurs in BeautificationPanel.IsCategoryValid.
+                    __result = true;
+                }
+            }
+        }
+    }
+
+    // This patch ensures the Roads maintenance tab is always created, even without Snowfall DLC.
+    // Note that this is a patch for the RoadsGroupPanel method (an override of GeneratedGroupPanel.IsServiceValid),
+    // and not for RoadsPanel.IsServiceValid (an override of GeneratedScrollPanel.IsServiceValid).
+
+    [HarmonyPatch(typeof(RoadsGroupPanel), "IsServiceValid", new Type[] { typeof(PrefabInfo) })]
+    class IsServiceValidForPrefabPatch
+    {
+        [HarmonyPostfix]
+        public static void Postfix(PrefabInfo info, ref bool __result)
+        {
+            if (!Mod.IsInGame())
+            {
+                return;
+            }
+
+            if (ToolsModifierControl.toolController.m_mode.IsFlagSet(ItemClass.Availability.Game))
+            {
+                if (Utils.GetCategoryOverride(info) == "RoadsMaintenance")
+                {
                     __result = true;
                 }
             }
