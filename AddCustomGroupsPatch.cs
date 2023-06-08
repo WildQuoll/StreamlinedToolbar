@@ -32,7 +32,8 @@ namespace StreamlinedToolbar
                 {
                     groupItems.Add((GroupInfo)createGroupMethod.Invoke(__instance, new[] { "BeautificationPedestrianZoneEssentials", null }));
                 }
-                if (SteamHelper.IsDLCOwned(SteamHelper.DLC.HotelDLC))
+                if (SteamHelper.IsDLCOwned(SteamHelper.DLC.HotelDLC) || 
+                    SteamHelper.IsDLCOwned(SteamHelper.DLC.ModderPack11)) // also create for the MCM CCP
                 {
                     groupItems.Add((GroupInfo)createGroupMethod.Invoke(__instance, new[] { "BeautificationHotels", null }));
                 }
